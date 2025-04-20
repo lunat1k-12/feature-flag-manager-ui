@@ -1,11 +1,12 @@
 import { useAppContext } from '../context/AppContext';
 import { formatDistanceToNow } from 'date-fns';
+import EnvironmentContent from './EnvironmentContent';
 
 // Helper function to format date strings
 function formatDate(dateString: string): string {
   try {
     return formatDistanceToNow(new Date(dateString), { addSuffix: true });
-  } catch (e) {
+  } catch {
     return dateString;
   }
 }
@@ -40,11 +41,11 @@ export default function Content() {
     reportsData,
     refreshDashboardData
   } = useAppContext();
-  
+
   // Function to render dashboard metrics
   const renderDashboardMetrics = () => {
     if (!dashboardData) return null;
-    
+
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {dashboardData.metrics.map(metric => {
@@ -55,9 +56,9 @@ export default function Content() {
             yellow: 'bg-yellow-50 border-yellow-100 text-yellow-800 text-yellow-600 text-yellow-500',
             red: 'bg-red-50 border-red-100 text-red-800 text-red-600 text-red-500'
           }[metric.color] || 'bg-gray-50 border-gray-100 text-gray-800 text-gray-600 text-gray-500';
-          
+
           const [bgColor, borderColor, titleColor, valueColor, changeColor] = colorClasses.split(' ');
-          
+
           return (
             <div key={metric.id} className={`${bgColor} p-4 rounded-md border ${borderColor}`}>
               <h4 className={`text-sm font-medium ${titleColor}`}>{metric.label}</h4>
@@ -74,11 +75,11 @@ export default function Content() {
       </div>
     );
   };
-  
+
   // Function to render recent activity
   const renderRecentActivity = () => {
     if (!dashboardData) return null;
-    
+
     return (
       <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
         <div className="flex justify-between items-center mb-2">
@@ -106,11 +107,11 @@ export default function Content() {
       </div>
     );
   };
-  
+
   // Function to render analytics content
   const renderAnalyticsContent = () => {
     if (!analyticsData) return <p>No analytics data available.</p>;
-    
+
     return (
       <div className="space-y-6">
         <div className="bg-white p-4 rounded-md border border-gray-200">
@@ -130,7 +131,7 @@ export default function Content() {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white p-4 rounded-md border border-gray-200">
           <h4 className="text-sm font-medium text-gray-700 mb-2">Data Points</h4>
           <div className="overflow-x-auto">
@@ -159,11 +160,11 @@ export default function Content() {
       </div>
     );
   };
-  
+
   // Function to render reports content
   const renderReportsContent = () => {
     if (!reportsData) return <p>No reports data available.</p>;
-    
+
     return (
       <div className="space-y-6">
         <div className="bg-white p-4 rounded-md border border-gray-200">
@@ -207,7 +208,7 @@ export default function Content() {
       </div>
     );
   };
-  
+
   return (
     <main 
       className={`bg-gray-100 min-h-screen pt-24 pb-6 px-6 transition-all duration-300 ${
@@ -219,12 +220,13 @@ export default function Content() {
           {activeTab === 'dashboard' && 'Dashboard Overview'}
           {activeTab === 'analytics' && 'Analytics Data'}
           {activeTab === 'reports' && 'Reports Summary'}
+          {activeTab === 'environment' && 'Environment Management'}
           {activeTab === 'settings' && 'Settings Panel'}
         </h3>
-        
+
         {/* Error message */}
         {error && <ErrorMessage message={error} />}
-        
+
         {/* Loading indicator */}
         {isLoading ? (
           <LoadingSpinner />
@@ -236,19 +238,25 @@ export default function Content() {
                 {renderRecentActivity()}
               </div>
             )}
-            
+
             {activeTab === 'analytics' && (
               <div>
                 {renderAnalyticsContent()}
               </div>
             )}
-            
+
             {activeTab === 'reports' && (
               <div>
                 {renderReportsContent()}
               </div>
             )}
-            
+
+            {activeTab === 'environment' && (
+              <div>
+                <EnvironmentContent />
+              </div>
+            )}
+
             {activeTab === 'settings' && (
               <div className="text-gray-600">
                 <p>Settings content will be displayed here.</p>

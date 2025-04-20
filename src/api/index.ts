@@ -17,6 +17,15 @@ export type {
   ReportsData
 } from './mockData';
 
+// Export environment types
+export type {
+  Environment,
+  ApiKey,
+  FeatureFlag,
+  FeatureFlagRequest,
+  GenerateApiKeyRequest
+} from './models/environment';
+
 // Export dashboard endpoints
 export {
   fetchDashboardMetrics,
@@ -37,3 +46,14 @@ export {
   fetchReportById,
   fetchReportsByType
 } from './endpoints/reports';
+
+// Export environment endpoints
+export {
+  fetchEnvironments,
+  createEnvironment,
+  fetchFeatureFlags,
+  createFeatureFlag,
+  fetchApiKeys,
+  generateApiKey,
+  deleteApiKey
+} from './endpoints/environment';

@@ -10,17 +10,18 @@ const menuItems: MenuItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
   { id: 'analytics', label: 'Analytics', icon: '📈' },
   { id: 'reports', label: 'Reports', icon: '📄' },
+  { id: 'environment', label: 'Environment', icon: '🚩' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
 
 export default function Sidebar() {
   const { activeTab, setActiveTab, sidebarCollapsed, toggleSidebar } = useAppContext();
-  
+
   // Handle menu item click
   const handleMenuItemClick = (id: string) => {
     setActiveTab(id);
   };
-  
+
   return (
     <aside 
       className={`bg-gray-800 text-white transition-all duration-300 ${
@@ -38,7 +39,7 @@ export default function Sidebar() {
           {sidebarCollapsed ? '→' : '←'}
         </button>
       </div>
-      
+
       <nav className="mt-6">
         <ul className="space-y-2 px-2">
           {menuItems.map((item) => (

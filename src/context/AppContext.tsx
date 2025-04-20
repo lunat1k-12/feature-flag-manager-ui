@@ -5,7 +5,11 @@ import {
   AnalyticsData,
   fetchAnalyticsData,
   ReportsData,
-  fetchReports
+  fetchReports,
+  Environment,
+  FeatureFlag,
+  fetchEnvironments,
+  fetchFeatureFlags
 } from '../api';
 
 interface AppContextType {
@@ -14,20 +18,26 @@ interface AppContextType {
   setActiveTab: (tab: string) => void;
   sidebarCollapsed: boolean;
   toggleSidebar: () => void;
-  
+
   // Data loading state
   isLoading: boolean;
   error: string | null;
-  
+
   // API data
   dashboardData: DashboardData | null;
   analyticsData: AnalyticsData | null;
   reportsData: ReportsData | null;
-  
+  environments: Environment[] | null;
+  selectedEnvironment: string | null;
+  featureFlags: FeatureFlag[] | null;
+
   // Data fetching functions
   refreshDashboardData: (forceRefresh?: boolean) => Promise<void>;
   refreshAnalyticsData: (timeRange?: 'day' | 'week' | 'month' | 'year') => Promise<void>;
   refreshReportsData: () => Promise<void>;
+  refreshEnvironments: (forceRefresh?: boolean) => Promise<void>;
+  refreshFeatureFlags: (envName: string) => Promise<void>;
+  setSelectedEnvironment: (envName: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -36,31 +46,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Navigation state
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  
+
   // Data loading state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // API data
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [reportsData, setReportsData] = useState<ReportsData | null>(null);
+  const [environments, setEnvironments] = useState<Environment[] | null>(null);
+  const [selectedEnvironment, setSelectedEnvironment] = useState<string | null>(null);
+  const [featureFlags, setFeatureFlags] = useState<FeatureFlag[] | null>(null);
 
   const toggleSidebar = () => {
     setSidebarCollapsed(prev => !prev);
   };
-  
+
   // Fetch dashboard data
   const refreshDashboardData = async (forceRefresh = false) => {
     // Skip if we already have data and aren't forcing a refresh
     if (dashboardData && !forceRefresh) return;
-    
+
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await fetchDashboardData();
-      
+
       if (response.success) {
         setDashboardData(response.data);
       } else {
@@ -72,15 +85,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
   };
-  
+
   // Fetch analytics data
   const refreshAnalyticsData = async (timeRange: 'day' | 'week' | 'month' | 'year' = 'month') => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await fetchAnalyticsData(timeRange);
-      
+
       if (response.success) {
         setAnalyticsData(response.data);
       } else {
@@ -92,15 +105,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
   };
-  
+
   // Fetch reports data
   const refreshReportsData = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await fetchReports();
-      
+
       if (response.success) {
         setReportsData(response.data);
       } else {
@@ -112,7 +125,54 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
   };
-  
+
+  // Fetch environments data
+  const refreshEnvironments = async (forceRefresh = false) => {
+    // Skip if we already have data and aren't forcing a refresh
+    if (environments && !forceRefresh) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetchEnvironments();
+
+      if (response.success) {
+        setEnvironments(response.data);
+        // Set the first environment as selected if none is selected
+        if (response.data.length > 0 && !selectedEnvironment) {
+          setSelectedEnvironment(response.data[0].name);
+        }
+      } else {
+        setError(response.error || 'Failed to fetch environments data');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch feature flags for a specific environment
+  const refreshFeatureFlags = async (envName: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetchFeatureFlags(envName);
+
+      if (response.success) {
+        setFeatureFlags(response.data);
+      } else {
+        setError(response.error || 'Failed to fetch feature flags data');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Load data when tab changes
   useEffect(() => {
     if (activeTab === 'dashboard') {
@@ -121,8 +181,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       refreshAnalyticsData();
     } else if (activeTab === 'reports') {
       refreshReportsData();
+    } else if (activeTab === 'environment') {
+      refreshEnvironments();
     }
   }, [activeTab]);
+
+  // Load feature flags when selected environment changes
+  useEffect(() => {
+    if (selectedEnvironment) {
+      refreshFeatureFlags(selectedEnvironment);
+    }
+  }, [selectedEnvironment]);
 
   return (
     <AppContext.Provider value={{ 
@@ -131,20 +200,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setActiveTab, 
       sidebarCollapsed, 
       toggleSidebar,
-      
+
       // Data loading state
       isLoading,
       error,
-      
+
       // API data
       dashboardData,
       analyticsData,
       reportsData,
-      
+      environments,
+      selectedEnvironment,
+      featureFlags,
+
       // Data fetching functions
       refreshDashboardData,
       refreshAnalyticsData,
-      refreshReportsData
+      refreshReportsData,
+      refreshEnvironments,
+      refreshFeatureFlags,
+      setSelectedEnvironment
     }}>
       {children}
     </AppContext.Provider>
