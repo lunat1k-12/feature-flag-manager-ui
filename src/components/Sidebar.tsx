@@ -7,11 +7,7 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-  { id: 'analytics', label: 'Analytics', icon: '📈' },
-  { id: 'reports', label: 'Reports', icon: '📄' },
   { id: 'environment', label: 'Environment', icon: '🚩' },
-  { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
 
 export default function Sidebar() {

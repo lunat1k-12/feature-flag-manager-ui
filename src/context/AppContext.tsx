@@ -44,7 +44,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   // Navigation state
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('environment');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Data loading state
@@ -173,18 +173,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Load data when tab changes
+  // Load environment data when component mounts
   useEffect(() => {
-    if (activeTab === 'dashboard') {
-      refreshDashboardData();
-    } else if (activeTab === 'analytics') {
-      refreshAnalyticsData();
-    } else if (activeTab === 'reports') {
-      refreshReportsData();
-    } else if (activeTab === 'environment') {
-      refreshEnvironments();
-    }
-  }, [activeTab]);
+    refreshEnvironments();
+  }, []);
 
   // Load feature flags when selected environment changes
   useEffect(() => {
