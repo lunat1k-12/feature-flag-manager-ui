@@ -75,7 +75,6 @@ export class ApiClient {
       const response = await fetch(`${this.baseUrl}${endpoint}`);
 
       if (!response.ok) {
-        console.log(JSON.stringify(response));
         throw new ApiError(`Failed to fetch data from ${endpoint}`, response.status);
       }
 

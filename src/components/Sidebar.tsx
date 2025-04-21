@@ -30,7 +30,7 @@ export default function Sidebar() {
     >
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
         {!sidebarCollapsed && (
-          <h1 className="text-xl font-bold">App Name</h1>
+          <h1 className="text-xl font-bold">FF Manager</h1>
         )}
         <button 
           onClick={toggleSidebar}
