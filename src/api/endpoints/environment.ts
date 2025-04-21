@@ -108,3 +108,18 @@ export async function deleteApiKey(envName: string, key: string, shouldFail: boo
     return apiClient.handleError(error);
   }
 }
+
+/**
+ * Deletes a feature flag
+ * @param envName The name of the environment
+ * @param featureName The name of the feature flag to delete
+ * @param shouldFail Whether the request should fail (for testing error handling)
+ */
+export async function deleteFeatureFlag(envName: string, featureName: string, shouldFail: boolean = false): Promise<ApiResponse<void>> {
+  try {
+    const response = await apiClient.delete<void>(`/env/ff/${envName}/${featureName}`, shouldFail);
+    return response;
+  } catch (error) {
+    return apiClient.handleError(error);
+  }
+}

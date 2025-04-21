@@ -55,5 +55,6 @@ export {
   createFeatureFlag,
   fetchApiKeys,
   generateApiKey,
-  deleteApiKey
+  deleteApiKey,
+  deleteFeatureFlag
 } from './endpoints/environment';

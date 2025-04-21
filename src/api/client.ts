@@ -94,6 +94,62 @@ export class ApiClient {
   }
 
   /**
+   * Makes a DELETE request to the API
+   * @param endpoint The API endpoint
+   * @param shouldFail Whether the request should fail (for testing error handling)
+   * @param delayMs Custom delay in milliseconds
+   */
+  async delete<T>(endpoint: string, shouldFail: boolean = false, delayMs: number = DEFAULT_DELAY): Promise<ApiResponse<T>> {
+    if (this.mockMode) {
+      // Simulate network delay in mock mode
+      await delay(delayMs);
+
+      if (shouldFail) {
+        throw new ApiError(`Failed to delete data from ${endpoint}`, 500);
+      }
+
+      // Return a success response for mock mode
+      return {
+        data: {} as T, // This will be overridden by specific endpoint handlers
+        success: true,
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new ApiError(`Failed to delete data from ${endpoint}`, response.status);
+      }
+
+      // For DELETE requests, the response might be empty
+      let responseData = {} as T;
+      try {
+        responseData = await response.json();
+      } catch {
+        // If the response is empty or not JSON, use an empty object
+      }
+
+      return {
+        data: responseData as T,
+        success: true,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(`Failed to delete data from ${endpoint}: ${error instanceof Error ? error.message : 'Unknown error'}`, 500);
+    }
+  }
+
+  /**
    * Makes a POST request to the API
    * @param endpoint The API endpoint
    * @param data The data to send

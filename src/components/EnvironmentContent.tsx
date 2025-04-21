@@ -2,6 +2,7 @@ import { useAppContext } from '../context/AppContext';
 import { FeatureFlag } from '../api';
 import { useState } from 'react';
 import AddFeatureFlagModal from './AddFeatureFlagModal';
+import DeleteFeatureFlagModal from './DeleteFeatureFlagModal';
 
 // Environment selector component
 function EnvironmentSelector() {
@@ -33,7 +34,13 @@ function EnvironmentSelector() {
 }
 
 // Feature flag card component
-function FeatureFlagCard({ featureFlag }: { featureFlag: FeatureFlag }) {
+function FeatureFlagCard({ 
+  featureFlag, 
+  onDelete 
+}: { 
+  featureFlag: FeatureFlag; 
+  onDelete: (flag: FeatureFlag) => void;
+}) {
   // Parse the config JSON
   const config = JSON.parse(featureFlag.config);
 
@@ -49,9 +56,18 @@ function FeatureFlagCard({ featureFlag }: { featureFlag: FeatureFlag }) {
     <div className="bg-white p-4 rounded-md border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-2">
         <h4 className="text-lg font-medium text-gray-900">{featureFlag.featureName}</h4>
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeColor}`}>
-          {featureFlag.type}
-        </span>
+        <div className="flex items-center space-x-2">
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeColor}`}>
+            {featureFlag.type}
+          </span>
+          <button 
+            onClick={() => onDelete(featureFlag)}
+            className="text-red-600 hover:text-red-800 text-sm"
+            aria-label="Delete feature flag"
+          >
+            Delete
+          </button>
+        </div>
       </div>
 
       <p className="text-sm text-gray-500 mb-4">Environment: {featureFlag.envName}</p>
@@ -90,7 +106,21 @@ function FeatureFlagCard({ featureFlag }: { featureFlag: FeatureFlag }) {
 // Main environment content component
 export default function EnvironmentContent() {
   const { featureFlags, selectedEnvironment, isLoading, error } = useAppContext();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [flagToDelete, setFlagToDelete] = useState<FeatureFlag | null>(null);
+
+  // Handle delete button click
+  const handleDeleteClick = (flag: FeatureFlag) => {
+    setFlagToDelete(flag);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Handle close delete modal
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setFlagToDelete(null);
+  };
 
   // Render loading state
   if (isLoading) {
@@ -114,9 +144,17 @@ export default function EnvironmentContent() {
   return (
     <div className="space-y-6">
       <AddFeatureFlagModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
       />
+      {flagToDelete && (
+        <DeleteFeatureFlagModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          featureName={flagToDelete.featureName}
+          envName={flagToDelete.envName}
+        />
+      )}
       <EnvironmentSelector />
 
       {selectedEnvironment && (
@@ -124,7 +162,7 @@ export default function EnvironmentContent() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-gray-900">Feature Flags</h3>
             <button 
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setIsAddModalOpen(true)}
               className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
             >
               Add New Flag
@@ -134,7 +172,11 @@ export default function EnvironmentContent() {
           {featureFlags && featureFlags.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {featureFlags.map((flag) => (
-                <FeatureFlagCard key={`${flag.envName}-${flag.featureName}`} featureFlag={flag} />
+                <FeatureFlagCard 
+                  key={`${flag.envName}-${flag.featureName}`} 
+                  featureFlag={flag} 
+                  onDelete={handleDeleteClick}
+                />
               ))}
             </div>
           ) : (
