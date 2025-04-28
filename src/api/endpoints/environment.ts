@@ -10,15 +10,14 @@ import {
   FeatureFlagRequest, 
   GenerateApiKeyRequest
 } from '../models/environment';
-import {User} from "oidc-client-ts";
 
 /**
  * Fetches all environments
  * @param shouldFail Whether the request should fail (for testing error handling)
  */
-export async function fetchEnvironments(user: User | null | undefined, shouldFail: boolean = false): Promise<ApiResponse<Environment[]>> {
+export async function fetchEnvironments(shouldFail: boolean = false): Promise<ApiResponse<Environment[]>> {
   try {
-    const response = await apiClient.get<Environment[]>('/env', shouldFail, 0, user);
+    const response = await apiClient.get<Environment[]>('/env', shouldFail, 0);
     return response;
   } catch (error) {
     return apiClient.handleError(error);
@@ -44,9 +43,9 @@ export async function createEnvironment(environment: Environment, shouldFail: bo
  * @param envName The name of the environment
  * @param shouldFail Whether the request should fail (for testing error handling)
  */
-export async function fetchFeatureFlags(envName: string, shouldFail: boolean = false, user: User | null = null): Promise<ApiResponse<FeatureFlag[]>> {
+export async function fetchFeatureFlags(envName: string, shouldFail: boolean = false): Promise<ApiResponse<FeatureFlag[]>> {
   try {
-    const response = await apiClient.get<FeatureFlag[]>(`/env/ff?envName=${envName}`, shouldFail, 0, user);
+    const response = await apiClient.get<FeatureFlag[]>(`/env/ff?envName=${envName}`, shouldFail, 0);
     return response;
   } catch (error) {
     return apiClient.handleError(error);

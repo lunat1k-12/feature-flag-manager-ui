@@ -4,7 +4,7 @@ import { useAuth } from 'react-oidc-context';
 import Layout from './components/Layout';
 import LoginPage from './components/LoginPage';
 import CallbackPage from './components/CallbackPage';
-import LogoutPage from './components/LogoutPage';
+import {JSX} from "react";
 
 // Protected route component that redirects to login if not authenticated
 function ProtectedRoute({ children }: { children: JSX.Element }) {

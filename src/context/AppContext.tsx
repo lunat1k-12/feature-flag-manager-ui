@@ -9,9 +9,9 @@ import {
   Environment,
   FeatureFlag,
   fetchEnvironments,
-  fetchFeatureFlags
+  fetchFeatureFlags,
+  apiClient
 } from '../api';
-import {User} from "oidc-client-ts";
 import {useAuth} from "react-oidc-context";
 
 interface AppContextType {
@@ -37,7 +37,7 @@ interface AppContextType {
   refreshDashboardData: (forceRefresh?: boolean) => Promise<void>;
   refreshAnalyticsData: (timeRange?: 'day' | 'week' | 'month' | 'year') => Promise<void>;
   refreshReportsData: () => Promise<void>;
-  refreshEnvironments: (forceRefresh?: boolean) => Promise<void>;
+  refreshEnvironments: (forceRefresh: boolean) => Promise<void>;
   refreshFeatureFlags: (envName: string) => Promise<void>;
   setSelectedEnvironment: (envName: string) => void;
 }
@@ -62,6 +62,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[] | null>(null);
 
   const { user } = useAuth();
+
+  // Set user in apiClient when it changes
+  useEffect(() => {
+    apiClient.setUser(user);
+  }, [user]);
 
   const toggleSidebar = () => {
     setSidebarCollapsed(prev => !prev);
@@ -131,7 +136,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   // Fetch environments data
-  const refreshEnvironments = async (forceRefresh = false, user: User) => {
+  const refreshEnvironments = async (forceRefresh: boolean) => {
     // Skip if we already have data and aren't forcing a refresh
     if (environments && !forceRefresh) return;
 
@@ -139,8 +144,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setError(null);
 
-      console.log(`From provider method - ${JSON.stringify(user)}`);
-      const response = await fetchEnvironments(user);
+      const response = await fetchEnvironments();
 
       if (response.success) {
         setEnvironments(response.data);
@@ -159,12 +163,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   // Fetch feature flags for a specific environment
-  const refreshFeatureFlags = async (envName: string, user: User) => {
+  const refreshFeatureFlags = async (envName: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetchFeatureFlags(envName, false, user);
+      const response = await fetchFeatureFlags(envName, false);
 
       if (response.success) {
         setFeatureFlags(response.data);
@@ -181,14 +185,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Load environment data when component mounts
   useEffect(() => {
     if (user) {
-      refreshEnvironments(false, user);
+      refreshEnvironments(false);
     }
   }, [user]);
 
   // Load feature flags when selected environment changes
   useEffect(() => {
     if (selectedEnvironment && user) {
-      refreshFeatureFlags(selectedEnvironment, user);
+      refreshFeatureFlags(selectedEnvironment);
     }
   }, [selectedEnvironment, user]);
 
