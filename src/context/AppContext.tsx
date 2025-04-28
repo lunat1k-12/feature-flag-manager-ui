@@ -11,6 +11,8 @@ import {
   fetchEnvironments,
   fetchFeatureFlags
 } from '../api';
+import {User} from "oidc-client-ts";
+import {useAuth} from "react-oidc-context";
 
 interface AppContextType {
   // Navigation state
@@ -58,6 +60,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [environments, setEnvironments] = useState<Environment[] | null>(null);
   const [selectedEnvironment, setSelectedEnvironment] = useState<string | null>(null);
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[] | null>(null);
+
+  const { user } = useAuth();
 
   const toggleSidebar = () => {
     setSidebarCollapsed(prev => !prev);
@@ -127,7 +131,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   // Fetch environments data
-  const refreshEnvironments = async (forceRefresh = false) => {
+  const refreshEnvironments = async (forceRefresh = false, user: User) => {
     // Skip if we already have data and aren't forcing a refresh
     if (environments && !forceRefresh) return;
 
@@ -135,7 +139,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetchEnvironments();
+      console.log(`From provider method - ${JSON.stringify(user)}`);
+      const response = await fetchEnvironments(user);
 
       if (response.success) {
         setEnvironments(response.data);
@@ -154,12 +159,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   // Fetch feature flags for a specific environment
-  const refreshFeatureFlags = async (envName: string) => {
+  const refreshFeatureFlags = async (envName: string, user: User) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetchFeatureFlags(envName);
+      const response = await fetchFeatureFlags(envName, false, user);
 
       if (response.success) {
         setFeatureFlags(response.data);
@@ -175,15 +180,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Load environment data when component mounts
   useEffect(() => {
-    refreshEnvironments();
-  }, []);
+    if (user) {
+      refreshEnvironments(false, user);
+    }
+  }, [user]);
 
   // Load feature flags when selected environment changes
   useEffect(() => {
-    if (selectedEnvironment) {
-      refreshFeatureFlags(selectedEnvironment);
+    if (selectedEnvironment && user) {
+      refreshFeatureFlags(selectedEnvironment, user);
     }
-  }, [selectedEnvironment]);
+  }, [selectedEnvironment, user]);
 
   return (
     <AppContext.Provider value={{ 

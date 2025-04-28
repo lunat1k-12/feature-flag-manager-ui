@@ -1,6 +1,8 @@
 /**
  * Base API client for making requests to the API
  */
+import {useAuth} from "react-oidc-context";
+import {User} from "oidc-client-ts";
 
 // Base URL for the API
 const API_BASE_URL = 'http://localhost:8080';
@@ -54,7 +56,7 @@ export class ApiClient {
    * @param shouldFail Whether the request should fail (for testing error handling)
    * @param delayMs Custom delay in milliseconds
    */
-  async get<T>(endpoint: string, shouldFail: boolean = false, delayMs: number = DEFAULT_DELAY): Promise<ApiResponse<T>> {
+  async get<T>(endpoint: string, shouldFail: boolean = false, delayMs: number = DEFAULT_DELAY, user: User | null | undefined = null): Promise<ApiResponse<T>> {
     if (this.mockMode) {
       // Simulate network delay in mock mode
       await delay(delayMs);
@@ -72,7 +74,22 @@ export class ApiClient {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`);
+      // Get the auth token from localStorage
+      // const token = localStorage.getItem('auth_token');
+
+      // Prepare headers
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add Authorization header if token exists
+      if (user?.id_token) {
+        headers['Authorization'] = `Bearer ${user.id_token}`;
+      }
+
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        headers,
+      });
 
       if (!response.ok) {
         throw new ApiError(`Failed to fetch data from ${endpoint}`, response.status);
@@ -117,11 +134,22 @@ export class ApiClient {
     }
 
     try {
+      // Get the auth token from localStorage
+      const token = localStorage.getItem('auth_token');
+
+      // Prepare headers
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -174,11 +202,22 @@ export class ApiClient {
     }
 
     try {
+      // Get the auth token from localStorage
+      const token = localStorage.getItem('auth_token');
+
+      // Prepare headers
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(data),
       });
 
