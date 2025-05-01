@@ -42,12 +42,10 @@ export const delay = (ms: number = DEFAULT_DELAY): Promise<void> => {
  */
 export class ApiClient {
   private baseUrl: string;
-  private mockMode: boolean;
   private user: User | null | undefined;
 
-  constructor(baseUrl: string = API_BASE_URL, mockMode: boolean = false) {
+  constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
-    this.mockMode = mockMode;
     this.user = null;
   }
 
@@ -59,25 +57,8 @@ export class ApiClient {
   /**
    * Makes a GET request to the API
    * @param endpoint The API endpoint
-   * @param shouldFail Whether the request should fail (for testing error handling)
-   * @param delayMs Custom delay in milliseconds
    */
-  async get<T>(endpoint: string, shouldFail: boolean = false, delayMs: number = DEFAULT_DELAY): Promise<ApiResponse<T>> {
-    if (this.mockMode) {
-      // Simulate network delay in mock mode
-      await delay(delayMs);
-
-      if (shouldFail) {
-        throw new ApiError(`Failed to fetch data from ${endpoint}`, 500);
-      }
-
-      // Return a success response for mock mode
-      return {
-        data: {} as T, // This will be overridden by specific endpoint handlers
-        success: true,
-        timestamp: new Date().toISOString()
-      };
-    }
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
 
     try {
       // Get the auth token from localStorage
@@ -119,26 +100,8 @@ export class ApiClient {
   /**
    * Makes a DELETE request to the API
    * @param endpoint The API endpoint
-   * @param shouldFail Whether the request should fail (for testing error handling)
-   * @param delayMs Custom delay in milliseconds
    */
-  async delete<T>(endpoint: string, shouldFail: boolean = false, delayMs: number = DEFAULT_DELAY): Promise<ApiResponse<T>> {
-    if (this.mockMode) {
-      // Simulate network delay in mock mode
-      await delay(delayMs);
-
-      if (shouldFail) {
-        throw new ApiError(`Failed to delete data from ${endpoint}`, 500);
-      }
-
-      // Return a success response for mock mode
-      return {
-        data: {} as T, // This will be overridden by specific endpoint handlers
-        success: true,
-        timestamp: new Date().toISOString()
-      };
-    }
-
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
     try {
       // Prepare headers
       const headers: HeadersInit = {
@@ -184,26 +147,8 @@ export class ApiClient {
    * Makes a POST request to the API
    * @param endpoint The API endpoint
    * @param data The data to send
-   * @param shouldFail Whether the request should fail (for testing error handling)
-   * @param delayMs Custom delay in milliseconds
    */
-  async post<T, R>(endpoint: string, data: T, shouldFail: boolean = false, delayMs: number = DEFAULT_DELAY): Promise<ApiResponse<R>> {
-    if (this.mockMode) {
-      // Simulate network delay in mock mode
-      await delay(delayMs);
-
-      if (shouldFail) {
-        throw new ApiError(`Failed to post data to ${endpoint}`, 500);
-      }
-
-      // Return a success response for mock mode
-      return {
-        data: {} as R, // This will be overridden by specific endpoint handlers
-        success: true,
-        timestamp: new Date().toISOString()
-      };
-    }
-
+  async post<T, R>(endpoint: string, data: T): Promise<ApiResponse<R>> {
     try {
       // Prepare headers
       const headers: HeadersInit = {
