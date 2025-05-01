@@ -4,7 +4,6 @@
 
 // Export base client and types
 export { apiClient } from './client';
-export { authApiClient } from './authClient';
 export type { ApiResponse, ApiError } from './client';
 
 // Export environment types
