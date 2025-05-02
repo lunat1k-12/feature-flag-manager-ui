@@ -13,11 +13,10 @@ import {
 
 /**
  * Fetches all environments
- * @param shouldFail Whether the request should fail (for testing error handling)
  */
-export async function fetchEnvironments(shouldFail: boolean = false): Promise<ApiResponse<Environment[]>> {
+export async function fetchEnvironments(): Promise<ApiResponse<Environment[]>> {
   try {
-    const response = await apiClient.get<Environment[]>('/env', shouldFail, 0);
+    const response = await apiClient.get<Environment[]>('/env');
     return response;
   } catch (error) {
     return apiClient.handleError(error);
@@ -29,9 +28,9 @@ export async function fetchEnvironments(shouldFail: boolean = false): Promise<Ap
  * @param environment The environment to create
  * @param shouldFail Whether the request should fail (for testing error handling)
  */
-export async function createEnvironment(environment: Environment, shouldFail: boolean = false): Promise<ApiResponse<Environment>> {
+export async function createEnvironment(environment: Environment): Promise<ApiResponse<Environment>> {
   try {
-    const response = await apiClient.post<Environment, Environment>('/env', environment, shouldFail);
+    const response = await apiClient.post<Environment, Environment>('/env', environment);
     return response;
   } catch (error) {
     return apiClient.handleError(error);
@@ -41,11 +40,10 @@ export async function createEnvironment(environment: Environment, shouldFail: bo
 /**
  * Fetches feature flags for a specific environment
  * @param envName The name of the environment
- * @param shouldFail Whether the request should fail (for testing error handling)
  */
-export async function fetchFeatureFlags(envName: string, shouldFail: boolean = false): Promise<ApiResponse<FeatureFlag[]>> {
+export async function fetchFeatureFlags(envName: string): Promise<ApiResponse<FeatureFlag[]>> {
   try {
-    const response = await apiClient.get<FeatureFlag[]>(`/env/ff?envName=${envName}`, shouldFail, 0);
+    const response = await apiClient.get<FeatureFlag[]>(`/env/ff?envName=${envName}`);
     return response;
   } catch (error) {
     return apiClient.handleError(error);
@@ -57,9 +55,9 @@ export async function fetchFeatureFlags(envName: string, shouldFail: boolean = f
  * @param featureFlag The feature flag to create
  * @param shouldFail Whether the request should fail (for testing error handling)
  */
-export async function createFeatureFlag(featureFlag: FeatureFlagRequest, shouldFail: boolean = false): Promise<ApiResponse<FeatureFlag>> {
+export async function createFeatureFlag(featureFlag: FeatureFlagRequest): Promise<ApiResponse<FeatureFlag>> {
   try {
-    const response = await apiClient.post<FeatureFlagRequest, FeatureFlag>('/env/ff', featureFlag, shouldFail);
+    const response = await apiClient.post<FeatureFlagRequest, FeatureFlag>('/env/ff', featureFlag);
     return response;
   } catch (error) {
     return apiClient.handleError(error);
@@ -69,11 +67,10 @@ export async function createFeatureFlag(featureFlag: FeatureFlagRequest, shouldF
 /**
  * Fetches API keys for a specific environment
  * @param envName The name of the environment
- * @param shouldFail Whether the request should fail (for testing error handling)
  */
-export async function fetchApiKeys(envName: string, shouldFail: boolean = false): Promise<ApiResponse<ApiKey[]>> {
+export async function fetchApiKeys(envName: string): Promise<ApiResponse<ApiKey[]>> {
   try {
-    const response = await apiClient.get<ApiKey[]>(`/env/key/${envName}`, shouldFail);
+    const response = await apiClient.get<ApiKey[]>(`/env/key/${envName}`);
     return response;
   } catch (error) {
     return apiClient.handleError(error);
@@ -85,9 +82,9 @@ export async function fetchApiKeys(envName: string, shouldFail: boolean = false)
  * @param request The request containing the environment name
  * @param shouldFail Whether the request should fail (for testing error handling)
  */
-export async function generateApiKey(request: GenerateApiKeyRequest, shouldFail: boolean = false): Promise<ApiResponse<ApiKey>> {
+export async function generateApiKey(request: GenerateApiKeyRequest): Promise<ApiResponse<ApiKey>> {
   try {
-    const response = await apiClient.post<GenerateApiKeyRequest, ApiKey>('/env/key', request, shouldFail);
+    const response = await apiClient.post<GenerateApiKeyRequest, ApiKey>('/env/key', request);
     return response;
   } catch (error) {
     return apiClient.handleError(error);
@@ -98,11 +95,10 @@ export async function generateApiKey(request: GenerateApiKeyRequest, shouldFail:
  * Deletes an API key
  * @param envName The name of the environment
  * @param key The API key to delete
- * @param shouldFail Whether the request should fail (for testing error handling)
  */
-export async function deleteApiKey(envName: string, key: string, shouldFail: boolean = false): Promise<ApiResponse<void>> {
+export async function deleteApiKey(envName: string, key: string): Promise<ApiResponse<void>> {
   try {
-    const response = await apiClient.get<void>(`/env/key/${envName}/${key}`, shouldFail);
+    const response = await apiClient.get<void>(`/env/key/${envName}/${key}`);
     return response;
   } catch (error) {
     return apiClient.handleError(error);
@@ -115,9 +111,9 @@ export async function deleteApiKey(envName: string, key: string, shouldFail: boo
  * @param featureName The name of the feature flag to delete
  * @param shouldFail Whether the request should fail (for testing error handling)
  */
-export async function deleteFeatureFlag(envName: string, featureName: string, shouldFail: boolean = false): Promise<ApiResponse<void>> {
+export async function deleteFeatureFlag(envName: string, featureName: string): Promise<ApiResponse<void>> {
   try {
-    const response = await apiClient.delete<void>(`/env/ff/${envName}/${featureName}`, shouldFail);
+    const response = await apiClient.delete<void>(`/env/ff/${envName}/${featureName}`);
     return response;
   } catch (error) {
     return apiClient.handleError(error);

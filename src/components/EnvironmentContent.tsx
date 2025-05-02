@@ -3,6 +3,7 @@ import { FeatureFlag } from '../api';
 import { useState } from 'react';
 import AddFeatureFlagModal from './AddFeatureFlagModal';
 import DeleteFeatureFlagModal from './DeleteFeatureFlagModal';
+import AddEnvironmentModal from './AddEnvironmentModal';
 
 // Environment selector component
 function EnvironmentSelector() {
@@ -13,7 +14,7 @@ function EnvironmentSelector() {
   }
 
   return (
-    <div className="mb-6">
+    <div>
       <label htmlFor="environment-select" className="block text-sm font-medium text-gray-700 mb-1">
         Select Environment
       </label>
@@ -107,6 +108,7 @@ function FeatureFlagCard({
 export default function EnvironmentContent() {
   const { featureFlags, selectedEnvironment, isLoading, error } = useAppContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddEnvironmentModalOpen, setIsAddEnvironmentModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [flagToDelete, setFlagToDelete] = useState<FeatureFlag | null>(null);
 
@@ -147,6 +149,10 @@ export default function EnvironmentContent() {
         isOpen={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 
       />
+      <AddEnvironmentModal
+        isOpen={isAddEnvironmentModalOpen}
+        onClose={() => setIsAddEnvironmentModalOpen(false)}
+      />
       {flagToDelete && (
         <DeleteFeatureFlagModal
           isOpen={isDeleteModalOpen}
@@ -155,7 +161,15 @@ export default function EnvironmentContent() {
           envName={flagToDelete.envName}
         />
       )}
-      <EnvironmentSelector />
+      <div className="flex justify-between items-center mb-4">
+        <EnvironmentSelector />
+        <button 
+          onClick={() => setIsAddEnvironmentModalOpen(true)}
+          className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Add Environment
+        </button>
+      </div>
 
       {selectedEnvironment && (
         <div>
