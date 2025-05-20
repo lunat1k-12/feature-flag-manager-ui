@@ -1,5 +1,6 @@
 import { useAppContext } from '../context/AppContext';
 import { ApiKey } from '../api';
+import { useState } from 'react';
 
 // Environment selector component (reused from EnvironmentContent)
 function EnvironmentSelector() {
@@ -32,6 +33,24 @@ function EnvironmentSelector() {
 
 // API Keys Table component
 function ApiKeysTable({ apiKeys }: { apiKeys: ApiKey[] }) {
+  const [visibleKeys, setVisibleKeys] = useState<Record<string, boolean>>({});
+
+  // Toggle key visibility
+  const toggleKeyVisibility = (key: string) => {
+    setVisibleKeys(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  // Format key to show only first 5 symbols + **** when hidden
+  const formatKey = (key: string, isVisible: boolean) => {
+    if (isVisible) {
+      return key;
+    }
+    return `${key.substring(0, 5)}****`;
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
@@ -39,9 +58,6 @@ function ApiKeysTable({ apiKeys }: { apiKeys: ApiKey[] }) {
           <tr>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Key
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Environment
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Status
@@ -52,10 +68,15 @@ function ApiKeysTable({ apiKeys }: { apiKeys: ApiKey[] }) {
           {apiKeys.map((apiKey) => (
             <tr key={apiKey.key}>
               <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-600 overflow-x-auto">
-                {apiKey.key}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {apiKey.envName}
+                <div className="flex items-center space-x-2">
+                  <span>{formatKey(apiKey.key, !!visibleKeys[apiKey.key])}</span>
+                  <button
+                    onClick={() => toggleKeyVisibility(apiKey.key)}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium ml-2"
+                  >
+                    {visibleKeys[apiKey.key] ? 'Hide' : 'Show'}
+                  </button>
+                </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
