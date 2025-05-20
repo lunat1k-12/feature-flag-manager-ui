@@ -1,5 +1,6 @@
 import { useAppContext } from '../context/AppContext';
 import EnvironmentContent from './EnvironmentContent';
+import ApiKeysContent from './ApiKeysContent';
 
 // Loading spinner component
 function LoadingSpinner() {
@@ -24,9 +25,37 @@ export default function Content() {
   const { 
     sidebarCollapsed,
     isLoading,
-    error
+    error,
+    activeTab
   } = useAppContext();
 
+  // Determine the title based on the active tab
+  const getTitle = () => {
+    switch (activeTab) {
+      case 'environment':
+        return 'Environment Management';
+      case 'apikeys':
+        return 'API Keys Management';
+      default:
+        return 'Environment Management';
+    }
+  };
+
+  // Render the content based on the active tab
+  const renderContent = () => {
+    if (isLoading) {
+      return <LoadingSpinner />;
+    }
+
+    switch (activeTab) {
+      case 'environment':
+        return <EnvironmentContent />;
+      case 'apikeys':
+        return <ApiKeysContent />;
+      default:
+        return <EnvironmentContent />;
+    }
+  };
 
   return (
     <main 
@@ -36,20 +65,16 @@ export default function Content() {
     >
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Environment Management
+          {getTitle()}
         </h3>
 
         {/* Error message */}
         {error && <ErrorMessage message={error} />}
 
-        {/* Loading indicator */}
-        {isLoading ? (
-          <LoadingSpinner />
-        ) : (
-          <div>
-            <EnvironmentContent />
-          </div>
-        )}
+        {/* Content */}
+        <div>
+          {renderContent()}
+        </div>
       </div>
     </main>
   );

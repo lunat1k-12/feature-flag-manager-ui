@@ -2,8 +2,11 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import {
   Environment,
   FeatureFlag,
+  ApiKey,
   fetchEnvironments,
   fetchFeatureFlags,
+  fetchApiKeys,
+  generateApiKey,
   apiClient
 } from '../api';
 import {useAuth} from "react-oidc-context";
@@ -23,10 +26,13 @@ interface AppContextType {
   environments: Environment[] | null;
   selectedEnvironment: string | null;
   featureFlags: FeatureFlag[] | null;
+  apiKeys: ApiKey[] | null;
 
   // Data fetching functions
   refreshEnvironments: (forceRefresh: boolean) => Promise<void>;
   refreshFeatureFlags: (envName: string) => Promise<void>;
+  refreshApiKeys: (envName: string) => Promise<void>;
+  generateNewApiKey: (envName: string) => Promise<void>;
   setSelectedEnvironment: (envName: string) => void;
 }
 
@@ -45,6 +51,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [environments, setEnvironments] = useState<Environment[] | null>(null);
   const [selectedEnvironment, setSelectedEnvironment] = useState<string | null>(null);
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[] | null>(null);
+  const [apiKeys, setApiKeys] = useState<ApiKey[] | null>(null);
 
   const { user } = useAuth();
 
@@ -90,12 +97,53 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetchFeatureFlags(envName, false);
+      const response = await fetchFeatureFlags(envName);
 
       if (response.success) {
         setFeatureFlags(response.data);
       } else {
         setError(response.error || 'Failed to fetch feature flags data');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch API keys for a specific environment
+  const refreshApiKeys = async (envName: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetchApiKeys(envName);
+
+      if (response.success) {
+        setApiKeys(response.data);
+      } else {
+        setError(response.error || 'Failed to fetch API keys data');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Generate a new API key for a specific environment
+  const generateNewApiKey = async (envName: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await generateApiKey({ env: envName });
+
+      if (response.success) {
+        // Refresh the API keys list after generating a new key
+        await refreshApiKeys(envName);
+      } else {
+        setError(response.error || 'Failed to generate API key');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -118,6 +166,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [selectedEnvironment, user]);
 
+  // Load API keys when selected environment changes
+  useEffect(() => {
+    if (selectedEnvironment && user && activeTab === 'apikeys') {
+      refreshApiKeys(selectedEnvironment);
+    }
+  }, [selectedEnvironment, user, activeTab]);
+
   return (
     <AppContext.Provider value={{ 
       // Navigation state
@@ -134,10 +189,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       environments,
       selectedEnvironment,
       featureFlags,
+      apiKeys,
 
       // Data fetching functions
       refreshEnvironments,
       refreshFeatureFlags,
+      refreshApiKeys,
+      generateNewApiKey,
       setSelectedEnvironment
     }}>
       {children}
