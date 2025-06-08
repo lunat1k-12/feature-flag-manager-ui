@@ -8,10 +8,7 @@ export default function LoginPage() {
   };
 
   const signOutRedirect = () => {
-    const clientId = "2eno1m49skl28h41v522dljlq8";
-    const logoutUri = "http://localhost:5173/logout";
-    const cognitoDomain = "https://feature-flip.auth.us-east-1.amazoncognito.com";
-    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+    auth.signoutRedirect();
   };
 
   return (
