@@ -1,9 +1,11 @@
 import { useAppContext } from '../context/AppContext';
 import { useAuth } from 'react-oidc-context';
+import {useNavigate} from "react-router-dom";
 
 export default function Header() {
   const { sidebarCollapsed } = useAppContext();
   const auth = useAuth();
+  const navigate = useNavigate();
 
   // Get initials for avatar
   const getInitials = () => {
@@ -13,7 +15,9 @@ export default function Header() {
 
   // Sign out function
   const signOutRedirect = () => {
-    auth.signoutRedirect();
+    // auth.signoutRedirect();
+    auth.removeUser()
+        .then(() => navigate('/login'));
   };
 
   const username: string = auth.user?.profile?.['cognito:username'] as string || 'User';

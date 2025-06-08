@@ -8,10 +8,12 @@ export default function CallbackPage() {
 
   useEffect(() => {
     // If authentication is complete, redirect to home page
-    if (auth.isAuthenticated) {
+    if (!auth.isAuthenticated && !auth.isLoading) {
+      auth.signinRedirect();
+    } else if (auth.isAuthenticated) {
       navigate('/');
     }
-  }, [auth.isAuthenticated, navigate]);
+  }, [auth.isAuthenticated, navigate, auth.isLoading]);
 
   // Show loading or error state
   return (

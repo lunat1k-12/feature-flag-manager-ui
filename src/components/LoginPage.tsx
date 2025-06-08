@@ -14,7 +14,7 @@ export default function LoginPage() {
   const handleSignUp = () => {
     // Redirect to Cognito's hosted sign-up page
     window.location.href = 
-      `https://auth.featuresflip.com/signup?client_id=2eno1m49skl28h41v522dljlq8&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:5173/callback`;
+      `https://login.featuresflip.com/signup?client_id=2ca1c7mlo3mattjg249rf4ghv5&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:5173/callback`;
   };
 
   return (
