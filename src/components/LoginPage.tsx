@@ -11,6 +11,12 @@ export default function LoginPage() {
     auth.signoutRedirect();
   };
 
+  const handleSignUp = () => {
+    // Redirect to Cognito's hosted sign-up page
+    window.location.href = 
+      `https://auth.featuresflip.com/signup?client_id=2eno1m49skl28h41v522dljlq8&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:5173/callback`;
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg">
@@ -58,6 +64,13 @@ export default function LoginPage() {
             className="w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Sign out
+          </button>
+
+          <button 
+            onClick={handleSignUp}
+            className="w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Create an account
           </button>
         </div>
       </div>
