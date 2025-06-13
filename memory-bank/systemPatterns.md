@@ -1,90 +1,164 @@
-# System Patterns
+# System Patterns - Feature Flag UI
 
 ## Architecture Overview
-The React Dashboard Application follows a component-based architecture with context-based state management. The application is structured around reusable UI components that compose together to create the complete interface.
+The application follows a modern React SPA architecture with clear separation of concerns:
 
 ```
-App
-├── AppProvider (Context)
-└── Layout
-    ├── Sidebar
-    ├── Header
-    └── Content
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Presentation  │    │   State Mgmt     │    │   Data Layer    │
+│   (Components)  │◄──►│   (Context)      │◄──►│   (API Client)  │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
 ## Key Design Patterns
 
-### Component Composition
-The application uses component composition to build complex UIs from smaller, reusable pieces. This promotes code reuse and separation of concerns.
+### 1. Context-Based State Management
+**Pattern**: Centralized application state using React Context API
+**Implementation**: `AppContext.tsx` provides global state for:
+- Navigation state (active tab, sidebar collapse)
+- Data loading states (loading, error)
+- API data (environments, feature flags, API keys)
+- Data fetching functions
 
-### Context API for State Management
-Rather than prop drilling or using external state management libraries, the application uses React's Context API to manage and share state across components.
+**Benefits**:
+- Single source of truth for application state
+- Eliminates prop drilling
+- Centralized error handling
+- Consistent loading states
 
-### Conditional Rendering
-Components use conditional rendering to display different content based on the active tab or other state variables.
+### 2. Protected Route Pattern
+**Pattern**: Route-level authentication guards
+**Implementation**: `ProtectedRoute` component wraps authenticated routes
+- Checks authentication status via `useAuth` hook
+- Shows loading spinner during auth check
+- Redirects to login if not authenticated
+- Renders protected content if authenticated
 
-### Responsive Design Pattern
-The UI adapts to different screen sizes using Tailwind CSS utility classes and responsive design techniques.
+### 3. API Client Pattern
+**Pattern**: Centralized HTTP client with user context
+**Implementation**: `apiClient` in `/src/api/client.ts`
+- Singleton pattern for consistent API communication
+- User context injection for authenticated requests
+- Standardized response format (`ApiResponse<T>`)
+- Error handling and response transformation
 
-## Component Relationships
+### 4. Modular API Structure
+**Pattern**: Feature-based API organization
+```
+/src/api/
+├── index.ts          # Public API exports
+├── client.ts         # Base HTTP client
+├── models/           # TypeScript interfaces
+│   └── environment.ts
+└── endpoints/        # Feature-specific endpoints
+    └── environment.ts
+```
 
-### AppContext
-- Provides global state management for the application
-- Manages the active tab state
-- Controls sidebar collapsed/expanded state
-- Used by multiple components to access and update shared state
+### 5. Component Composition Pattern
+**Pattern**: Layout composition with slot-based content
+**Implementation**: `Layout` component provides structure:
+- `Sidebar` for navigation
+- `Header` for top-level actions
+- `Content` area for dynamic content
+- Optional children override for custom layouts
 
-### Layout Component
-- Acts as the main structural component
-- Composes Sidebar, Header, and Content components
-- Provides the overall page structure and layout
+### 6. Modal Management Pattern
+**Pattern**: Declarative modal state management
+**Implementation**: Modal components are conditionally rendered based on state
+- State-driven visibility (`showModal` boolean)
+- Callback props for actions (onSave, onCancel)
+- Form state isolated within modal components
 
-### Sidebar Component
-- Displays navigation menu items
-- Can be collapsed or expanded
-- Interacts with AppContext to toggle its state
+## Data Flow Patterns
 
-### Header Component
-- Shows the current section title
-- Provides tab navigation
-- Displays user information and notifications
-- Adapts its position based on sidebar state
+### 1. Environment-Centric Data Loading
+```
+User selects environment → Context updates selectedEnvironment → 
+Triggers useEffect → Loads environment-specific data → Updates state
+```
 
-### Content Component
-- Renders different content based on the active tab
-- Contains dashboard widgets, analytics, reports, or settings
-- Adjusts its margin based on sidebar state
+### 2. Optimistic UI Updates
+- Immediate UI feedback for user actions
+- Background API calls with error handling
+- State rollback on API failures
 
-## State Management Flow
-1. AppProvider initializes state (activeTab, sidebarCollapsed)
-2. State is accessed by components via useAppContext hook
-3. Components dispatch actions (setActiveTab, toggleSidebar) to update state
-4. State changes trigger re-renders of affected components
+### 3. Lazy Data Loading
+- Data loaded only when needed (tab activation)
+- Force refresh capability for stale data
+- Loading states prevent multiple concurrent requests
 
-## Critical Implementation Paths
+## Component Patterns
 
-### Navigation Flow
-1. User clicks on a tab in Header or menu item in Sidebar
-2. Click handler calls setActiveTab with the selected tab ID
-3. AppContext updates the activeTab state
-4. Content component re-renders to show the selected tab's content
+### 1. Container/Presentation Separation
+- **Container Components**: Handle state and business logic
+- **Presentation Components**: Pure UI rendering
+- **Example**: `Content.tsx` (container) renders specific content components
 
-### Sidebar Toggle Flow
-1. User clicks the sidebar toggle button
-2. Click handler calls toggleSidebar function
-3. AppContext updates the sidebarCollapsed state
-4. Sidebar component re-renders with new width
-5. Header and Content components adjust their margins accordingly
+### 2. Custom Hook Pattern
+- `useAppContext()`: Provides type-safe access to app state
+- `useAuth()`: Handles authentication state (from react-oidc-context)
+- Encapsulates complex state logic
 
-## CSS Strategy
-- Tailwind CSS for utility-first styling
-- Responsive classes to handle different screen sizes
-- Dynamic class application based on component state
-- Transition effects for smooth UI changes
+### 3. Conditional Rendering Pattern
+```typescript
+{isLoading && <LoadingSpinner />}
+{error && <ErrorMessage error={error} />}
+{data && <DataComponent data={data} />}
+```
 
-## Future Architecture Considerations
-1. **Code Splitting**: Implement lazy loading for different dashboard sections
-2. **Custom Hooks**: Extract common logic into reusable hooks
-3. **Component Library**: Formalize UI components into a shared library
-4. **API Integration Layer**: Add service layer for data fetching and processing
-5. **State Management Scale**: Consider Redux or other solutions if state complexity grows
+## Error Handling Patterns
+
+### 1. Centralized Error State
+- Errors stored in context state
+- Consistent error display across components
+- Error clearing on successful operations
+
+### 2. API Error Standardization
+```typescript
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+```
+
+### 3. User-Friendly Error Messages
+- Technical errors transformed to user-friendly messages
+- Contextual error information (which operation failed)
+- Clear recovery actions when possible
+
+## Security Patterns
+
+### 1. Authentication-First Architecture
+- All routes protected by default
+- Authentication check on app initialization
+- User context available throughout application
+
+### 2. API Security
+- User token automatically included in API requests
+- Centralized token management via apiClient
+- Automatic token refresh handling (via react-oidc-context)
+
+## Performance Patterns
+
+### 1. Conditional Data Loading
+- Data fetched only when tabs are active
+- Prevents unnecessary API calls
+- Reduces initial load time
+
+### 2. State Optimization
+- Minimal re-renders through careful state structure
+- Loading states prevent duplicate requests
+- Efficient context value memoization
+
+## Future Extensibility Patterns
+
+### 1. Plugin Architecture Ready
+- Modular API structure supports new endpoints
+- Component composition allows new content types
+- Context pattern scales to additional state domains
+
+### 2. Multi-Tenant Ready
+- User context can be extended for tenant information
+- API client supports tenant-scoped requests
+- Environment model can include tenant isolation

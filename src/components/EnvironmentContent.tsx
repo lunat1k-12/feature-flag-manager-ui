@@ -3,6 +3,7 @@ import { FeatureFlag } from '../api';
 import { useState } from 'react';
 import AddFeatureFlagModal from './AddFeatureFlagModal';
 import DeleteFeatureFlagModal from './DeleteFeatureFlagModal';
+import UpdateFeatureFlagModal from './UpdateFeatureFlagModal';
 import AddEnvironmentModal from './AddEnvironmentModal';
 
 // Environment selector component
@@ -37,10 +38,12 @@ function EnvironmentSelector() {
 // Feature flag card component
 function FeatureFlagCard({ 
   featureFlag, 
-  onDelete 
+  onDelete,
+  onUpdate
 }: { 
   featureFlag: FeatureFlag; 
   onDelete: (flag: FeatureFlag) => void;
+  onUpdate: (flag: FeatureFlag) => void;
 }) {
   // Parse the config JSON
   const config = JSON.parse(featureFlag.config);
@@ -61,6 +64,13 @@ function FeatureFlagCard({
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeColor}`}>
             {featureFlag.type}
           </span>
+          <button 
+            onClick={() => onUpdate(featureFlag)}
+            className="text-blue-600 hover:text-blue-800 text-sm"
+            aria-label="Update feature flag"
+          >
+            Update
+          </button>
           <button 
             onClick={() => onDelete(featureFlag)}
             className="text-red-600 hover:text-red-800 text-sm"
@@ -110,7 +120,9 @@ export default function EnvironmentContent() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddEnvironmentModalOpen, setIsAddEnvironmentModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [flagToDelete, setFlagToDelete] = useState<FeatureFlag | null>(null);
+  const [flagToUpdate, setFlagToUpdate] = useState<FeatureFlag | null>(null);
 
   // Handle delete button click
   const handleDeleteClick = (flag: FeatureFlag) => {
@@ -118,10 +130,22 @@ export default function EnvironmentContent() {
     setIsDeleteModalOpen(true);
   };
 
+  // Handle update button click
+  const handleUpdateClick = (flag: FeatureFlag) => {
+    setFlagToUpdate(flag);
+    setIsUpdateModalOpen(true);
+  };
+
   // Handle close delete modal
   const handleCloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
     setFlagToDelete(null);
+  };
+
+  // Handle close update modal
+  const handleCloseUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+    setFlagToUpdate(null);
   };
 
   // Render loading state
@@ -161,6 +185,13 @@ export default function EnvironmentContent() {
           envName={flagToDelete.envName}
         />
       )}
+      {flagToUpdate && (
+        <UpdateFeatureFlagModal
+          isOpen={isUpdateModalOpen}
+          onClose={handleCloseUpdateModal}
+          featureFlag={flagToUpdate}
+        />
+      )}
       <div className="flex justify-between items-center mb-4">
         <EnvironmentSelector />
         <button 
@@ -190,6 +221,7 @@ export default function EnvironmentContent() {
                   key={`${flag.envName}-${flag.featureName}`} 
                   featureFlag={flag} 
                   onDelete={handleDeleteClick}
+                  onUpdate={handleUpdateClick}
                 />
               ))}
             </div>

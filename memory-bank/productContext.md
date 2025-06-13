@@ -1,39 +1,75 @@
-# Product Context
+# Product Context - Feature Flag UI
 
-## Purpose
-The React Dashboard Application serves as a centralized interface for users to monitor, analyze, and manage various aspects of their business or system. It provides an intuitive, visually appealing way to access key information and perform common tasks without navigating through multiple separate interfaces.
-
-## Problems Solved
-1. **Information Fragmentation**: Consolidates data and functionality that would otherwise be spread across multiple screens or applications
-2. **Decision Making**: Enables faster, more informed decisions by presenting critical metrics and information at a glance
-3. **Efficiency**: Reduces time spent navigating between different tools and interfaces
-4. **Consistency**: Provides a unified experience with consistent design patterns and interactions
-5. **Accessibility**: Makes complex data and functionality more accessible through visual presentation and intuitive controls
-
-## User Experience Goals
-1. **Intuitive Navigation**: Users should immediately understand how to navigate the application
-2. **Minimal Learning Curve**: New users should be able to use core functionality without extensive training
-3. **Efficiency**: Common tasks should be accomplishable with minimal clicks/interactions
-4. **Visual Clarity**: Information should be presented in a clear, scannable format that highlights what's important
-5. **Responsive Design**: The interface should adapt seamlessly to different screen sizes and devices
-6. **Personalization**: Users should be able to customize their experience based on their preferences and needs
+## Problem Statement
+Development teams need a centralized, user-friendly way to manage feature flags across multiple environments. Without proper tooling, feature flag management becomes:
+- Error-prone (manual configuration files)
+- Inconsistent across environments
+- Difficult for non-technical stakeholders to manage
+- Lacking proper access controls and audit trails
 
 ## Target Users
-1. **Business Managers**: Need overview of key metrics and performance indicators
-2. **Analysts**: Require detailed data and reporting capabilities
-3. **Operational Staff**: Need quick access to day-to-day information and tasks
-4. **Administrators**: Require system configuration and management capabilities
 
-## Key User Journeys
-1. **Dashboard Overview**: User logs in and gets an immediate snapshot of current status and key metrics
-2. **Data Exploration**: User navigates between different sections to analyze specific areas in more detail
-3. **Configuration**: User adjusts settings and preferences to customize their experience
-4. **Reporting**: User generates or views reports on specific metrics or time periods
-5. **Task Management**: User views and manages tasks or activities requiring attention
+### Primary Users
+- **Product Managers**: Need to enable/disable features without technical intervention
+- **Developers**: Need to create and configure feature flags during development
+- **DevOps Engineers**: Need to manage environment-specific configurations
+
+### Secondary Users
+- **QA Engineers**: Need to test different feature combinations
+- **Support Teams**: Need visibility into feature states for troubleshooting
+
+## User Journey
+
+### Authentication Flow
+1. User navigates to application
+2. Redirected to OAuth/OIDC provider for authentication
+3. After successful auth, redirected back to main application
+4. User gains access to feature flag management interface
+
+### Environment Management
+1. User selects or creates an environment (dev, staging, prod)
+2. Environment becomes the context for all subsequent operations
+3. User can switch between environments as needed
+
+### Feature Flag Lifecycle
+1. **Creation**: User creates a new feature flag with name and description
+2. **Configuration**: User sets initial state (enabled/disabled) per environment
+3. **Management**: User can toggle flags on/off as needed
+4. **Cleanup**: User can delete flags that are no longer needed
+
+### API Key Management
+1. User generates API keys for programmatic access
+2. Keys are scoped to specific environments
+3. Applications use these keys to query feature flag states
+4. User can revoke keys when no longer needed
+
+## Value Proposition
+
+### For Product Teams
+- **Faster iteration**: Toggle features without deployments
+- **Risk mitigation**: Gradual rollouts and quick rollbacks
+- **A/B testing**: Easy feature variation management
+
+### For Development Teams
+- **Simplified deployments**: Deploy code with features disabled
+- **Environment consistency**: Same codebase, different configurations
+- **Debugging support**: Quickly isolate feature-related issues
+
+### For Operations Teams
+- **Centralized control**: Single source of truth for feature states
+- **Audit trails**: Track who changed what and when
+- **API integration**: Programmatic access for CI/CD pipelines
 
 ## Success Metrics
-1. **User Engagement**: Frequency and duration of application use
-2. **Task Completion Rate**: Percentage of started tasks successfully completed
-3. **Navigation Efficiency**: Number of clicks/time required to access key information
-4. **User Satisfaction**: Feedback scores and qualitative assessments
-5. **Error Rate**: Frequency of user errors or confusion points
+- Reduction in deployment-related incidents
+- Faster feature rollout cycles
+- Increased non-technical user adoption
+- Improved environment configuration consistency
+- Reduced time to resolve feature-related issues
+
+## User Experience Goals
+- **Intuitive**: Non-technical users can manage flags without training
+- **Fast**: Operations complete in under 3 clicks
+- **Reliable**: Clear feedback for all actions (success, error, loading)
+- **Accessible**: Works across devices and screen sizes
+- **Secure**: Proper authentication and authorization controls

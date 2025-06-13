@@ -1,25 +1,57 @@
-# Project Brief: React Dashboard Application
+# Feature Flag UI - Project Brief
 
-## Overview
-This project is a React-based dashboard application with a responsive UI that includes a collapsible sidebar, tabbed navigation, and content areas for different sections. The application is built with modern web technologies and follows a component-based architecture.
+## Project Overview
+A React-based web application for managing feature flags across different environments. This is a frontend UI that connects to a backend API for feature flag management, providing a user-friendly interface for developers and product teams.
 
 ## Core Requirements
-1. **Responsive Dashboard Interface**: A clean, modern UI that works across different screen sizes
-2. **Collapsible Sidebar**: Navigation sidebar that can be expanded or collapsed
-3. **Tab-based Navigation**: Easy switching between different dashboard sections
-4. **Dashboard Components**: Display of statistics, recent activity, and other relevant information
-5. **Consistent Styling**: Professional look and feel using Tailwind CSS
 
-## Technical Goals
-1. **Modern React Patterns**: Utilize React's latest features and best practices
-2. **Type Safety**: Leverage TypeScript for improved code quality and developer experience
-3. **Component Reusability**: Create modular components that can be reused across the application
-4. **State Management**: Implement context-based state management for application data
-5. **Performance Optimization**: Ensure the application loads and runs efficiently
+### Authentication & Security
+- OAuth/OIDC authentication integration using `react-oidc-context`
+- Protected routes requiring authentication
+- User context management throughout the application
 
-## Future Considerations
-1. **Authentication**: User login and role-based access control
-2. **Data Visualization**: Charts and graphs for analytics data
-3. **Real-time Updates**: Live data updates for dashboard metrics
-4. **Theme Customization**: Light/dark mode and custom color schemes
-5. **Notifications System**: Real-time alerts and notifications for users
+### Environment Management
+- Create and manage multiple environments (dev, staging, prod, etc.)
+- Environment-specific feature flag configurations
+- Environment selection and switching
+
+### Feature Flag Management
+- Create, read, update, and delete feature flags
+- Environment-specific flag configurations
+- Flag state management (enabled/disabled)
+
+### API Key Management
+- Generate API keys for programmatic access
+- Environment-specific API key management
+- Key lifecycle management (create, view, delete)
+
+### User Interface
+- Responsive design using Tailwind CSS
+- Sidebar navigation with collapsible functionality
+- Tab-based content organization
+- Modal dialogs for create/edit operations
+- Loading states and error handling
+
+## Technical Stack
+- **Frontend**: React 19 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **Routing**: React Router DOM v6
+- **Authentication**: OIDC Client TS + React OIDC Context
+- **State Management**: React Context API
+- **Date Handling**: date-fns
+
+## Key Features
+1. **Multi-environment support** - Manage flags across different deployment environments
+2. **Secure authentication** - OAuth/OIDC integration for enterprise security
+3. **API key generation** - Programmatic access for CI/CD and applications
+4. **Intuitive UI** - Clean, responsive interface for non-technical users
+5. **Real-time updates** - Dynamic loading and refreshing of data
+
+## Success Criteria
+- Users can authenticate securely via OAuth/OIDC
+- Users can create and manage multiple environments
+- Users can create, configure, and manage feature flags per environment
+- Users can generate and manage API keys for programmatic access
+- Application provides clear feedback for all operations (loading, success, errors)
+- Interface is responsive and works across different screen sizes
