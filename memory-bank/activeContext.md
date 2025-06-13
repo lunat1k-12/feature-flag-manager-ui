@@ -53,6 +53,11 @@ The Feature Flag UI is a **functional React application** with core infrastructu
 - API key listing and management
 - Key deletion capabilities
 - Programmatic access support
+- **✅ API Usage Example with Curl Command (COMPLETED - December 2025)**
+  - Dynamic curl example generation with pre-filled API key and environment
+  - Copy-to-clipboard functionality with visual feedback
+  - Conditional rendering (only shows when active keys exist)
+  - Positioned below API Keys table for logical flow
 
 ## Current Focus Areas
 
@@ -162,6 +167,22 @@ All application routes require authentication:
 - Supports both SIMPLE and PERCENTAGE flag types
 - Uses same `createFeatureFlag` API call
 - Automatic data refresh after successful updates
+
+### 6. API Usage Example Implementation
+**Decision**: Embed curl example directly in API Keys tab with dynamic content generation
+**Rationale**:
+- Provides immediate value to developers using the API
+- Reduces friction by pre-filling active credentials
+- Contextually relevant placement within API key management
+- Modern clipboard API for seamless copy functionality
+**Implementation Details**:
+- `CurlExample` component within `ApiKeysContent.tsx`
+- Dynamic URL: `https://query.featuresflip.com/feature-flags`
+- Pre-filled with first active API key and selected environment
+- Copy-to-clipboard with visual feedback (success/error states)
+- Conditional rendering based on active key availability
+- Terminal-style styling for professional appearance
+- Positioned below API Keys table for logical workflow
 
 ## Current Challenges & Considerations
 

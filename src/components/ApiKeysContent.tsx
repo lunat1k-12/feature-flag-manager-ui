@@ -31,6 +31,50 @@ function EnvironmentSelector() {
   );
 }
 
+// Curl Example component
+function CurlExample({ activeApiKey, selectedEnvironment }: { activeApiKey: string; selectedEnvironment: string }) {
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const curlCommand = `curl https://query.featuresflip.com/feature-flags \\
+ -H "api-key: ${activeApiKey}" \\
+ -H "environment: ${selectedEnvironment}"`;
+
+  const handleCopyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(curlCommand);
+      setCopyStatus('success');
+      setTimeout(() => setCopyStatus('idle'), 2000);
+    } catch (err) {
+      setCopyStatus('error');
+      setTimeout(() => setCopyStatus('idle'), 2000);
+    }
+  };
+
+  return (
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+      <div className="flex justify-between items-center mb-3">
+        <h4 className="text-sm font-medium text-gray-900">API Usage Example</h4>
+        <button
+          onClick={handleCopyToClipboard}
+          className={`px-3 py-1 text-sm rounded-md transition-colors ${
+            copyStatus === 'success'
+              ? 'bg-green-100 text-green-800 border border-green-200'
+              : copyStatus === 'error'
+              ? 'bg-red-100 text-red-800 border border-red-200'
+              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          }`}
+          disabled={copyStatus !== 'idle'}
+        >
+          {copyStatus === 'success' ? '✓ Copied!' : copyStatus === 'error' ? '✗ Failed' : '📋 Copy to clipboard'}
+        </button>
+      </div>
+      <pre className="bg-gray-900 text-green-400 p-3 rounded-md text-sm font-mono overflow-x-auto whitespace-pre-wrap">
+        {curlCommand}
+      </pre>
+    </div>
+  );
+}
+
 // API Keys Table component
 function ApiKeysTable({ apiKeys }: { apiKeys: ApiKey[] }) {
   const [visibleKeys, setVisibleKeys] = useState<Record<string, boolean>>({});
@@ -97,6 +141,10 @@ function ApiKeysTable({ apiKeys }: { apiKeys: ApiKey[] }) {
 export default function ApiKeysContent() {
   const { apiKeys, selectedEnvironment, isLoading, error, generateNewApiKey } = useAppContext();
 
+  // Get first active API key for curl example
+  const activeKeys = apiKeys?.filter(key => key.active) || [];
+  const firstActiveKey = activeKeys[0]?.key;
+
   // Handle generate API key button click
   const handleGenerateClick = async () => {
     if (selectedEnvironment) {
@@ -145,6 +193,14 @@ export default function ApiKeysContent() {
             <ApiKeysTable apiKeys={apiKeys} />
           ) : (
             <p className="text-gray-500">No API keys available for this environment.</p>
+          )}
+
+          {/* Curl Example Section - only show if there's an active key */}
+          {firstActiveKey && selectedEnvironment && (
+            <CurlExample 
+              activeApiKey={firstActiveKey} 
+              selectedEnvironment={selectedEnvironment} 
+            />
           )}
         </div>
       )}

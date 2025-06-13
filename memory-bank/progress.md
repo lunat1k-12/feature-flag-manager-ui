@@ -64,6 +64,11 @@ The Feature Flag UI has reached a significant milestone with all core infrastruc
 - [x] API key deletion capabilities
 - [x] Programmatic access support
 - [x] Key metadata display (creation date, etc.)
+- [x] **API Usage Example with Curl Command (December 2025)**
+  - Dynamic curl example generation with pre-filled credentials
+  - Copy-to-clipboard functionality with visual feedback
+  - Conditional rendering based on active key availability
+  - Professional terminal-style presentation
 
 ## Current Development Status
 
