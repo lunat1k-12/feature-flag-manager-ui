@@ -58,31 +58,55 @@ export default function MetricsContent() {
           </select>
         </div>
 
-        {/* Day/Week Toggle */}
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-gray-700">Period:</span>
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => handleMetricsTypeChange('day')}
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                metricsType === 'day'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Day
-            </button>
-            <button
-              onClick={() => handleMetricsTypeChange('week')}
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                metricsType === 'week'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Week
-            </button>
+        {/* Day/Week Toggle and Refresh Button */}
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-gray-700">Period:</span>
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => handleMetricsTypeChange('day')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  metricsType === 'day'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Day
+              </button>
+              <button
+                onClick={() => handleMetricsTypeChange('week')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  metricsType === 'week'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Week
+              </button>
+            </div>
           </div>
+          
+          {/* Refresh Button */}
+          <button
+            onClick={() => selectedEnvironment && refreshMetrics(selectedEnvironment, metricsType)}
+            disabled={isLoading}
+            className="flex items-center justify-center w-10 h-10 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            title="Refresh metrics data"
+          >
+            <svg 
+              className={`w-5 h-5 text-gray-600 ${isLoading ? 'animate-spin' : ''}`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+              />
+            </svg>
+          </button>
         </div>
       </div>
 
