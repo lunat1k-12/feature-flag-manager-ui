@@ -8,17 +8,17 @@ interface FeatureMetricsChartProps {
 export default function FeatureMetricsChart({ featureMetrics }: FeatureMetricsChartProps) {
   const { featureName, enabledAxis, disabledAxis } = featureMetrics;
 
-  // Prepare data series for the multi-line chart
+  // Prepare data series for the multi-line chart with modern, appealing colors
   const chartSeries = [
     {
       data: enabledAxis,
       label: 'Enabled',
-      color: '#10b981' // Green color for enabled
+      color: '#06d6a0' // Modern teal-green for enabled
     },
     {
       data: disabledAxis,
       label: 'Disabled',
-      color: '#ef4444' // Red color for disabled
+      color: '#f72585' // Modern pink-red for disabled
     }
   ];
 
@@ -37,24 +37,24 @@ export default function FeatureMetricsChart({ featureMetrics }: FeatureMetricsCh
       />
 
       {/* Summary Statistics */}
-      <div className="mt-6 grid grid-cols-2 gap-4 text-sm text-gray-600">
-        <div className="bg-white rounded-lg p-3 border">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span className="font-medium">Total Enabled:</span>
+      <div className="mt-6 grid grid-cols-2 gap-6 text-sm text-gray-600">
+        <div className="bg-gradient-to-br from-white to-teal-50 rounded-xl p-4 border border-teal-100 shadow-sm">
+          <div className="flex items-center space-x-3">
+            <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: '#06d6a0' }}></div>
+            <span className="font-semibold text-gray-700">Total Enabled</span>
           </div>
-          <p className="text-lg font-semibold text-gray-900 mt-1">
-            {enabledAxis.reduce((sum, point) => sum + point.value, 0)}
+          <p className="text-2xl font-bold text-teal-600 mt-2">
+            {enabledAxis.reduce((sum, point) => sum + point.value, 0).toLocaleString()}
           </p>
         </div>
         
-        <div className="bg-white rounded-lg p-3 border">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span className="font-medium">Total Disabled:</span>
+        <div className="bg-gradient-to-br from-white to-pink-50 rounded-xl p-4 border border-pink-100 shadow-sm">
+          <div className="flex items-center space-x-3">
+            <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: '#f72585' }}></div>
+            <span className="font-semibold text-gray-700">Total Disabled</span>
           </div>
-          <p className="text-lg font-semibold text-gray-900 mt-1">
-            {disabledAxis.reduce((sum, point) => sum + point.value, 0)}
+          <p className="text-2xl font-bold text-pink-600 mt-2">
+            {disabledAxis.reduce((sum, point) => sum + point.value, 0).toLocaleString()}
           </p>
         </div>
       </div>
