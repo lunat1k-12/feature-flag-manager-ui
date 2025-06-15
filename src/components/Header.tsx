@@ -30,9 +30,6 @@ export default function Header() {
       <div className="flex justify-between items-center px-6 py-3">
         <h2 className="text-xl font-semibold text-gray-800">Environment</h2>
         <div className="flex items-center space-x-4">
-          <button className="p-2 rounded-full hover:bg-gray-100">
-            <span className="text-gray-600">🔔</span>
-          </button>
 
           {/* User menu */}
           <div className="relative">
