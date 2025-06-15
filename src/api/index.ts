@@ -15,6 +15,12 @@ export type {
   GenerateApiKeyRequest
 } from './models/environment';
 
+// Export metrics types
+export type {
+  MetricDataPoint,
+  FeatureMetrics
+} from './endpoints/metrics';
+
 
 // Export environment endpoints
 export {
@@ -27,3 +33,8 @@ export {
   deleteApiKey,
   deleteFeatureFlag
 } from './endpoints/environment';
+
+// Export metrics endpoints
+export {
+  fetchMetrics
+} from './endpoints/metrics';

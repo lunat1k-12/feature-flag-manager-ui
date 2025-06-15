@@ -1,6 +1,7 @@
 import { useAppContext } from '../context/AppContext';
 import EnvironmentContent from './EnvironmentContent';
 import ApiKeysContent from './ApiKeysContent';
+import MetricsContent from './MetricsContent';
 
 // Loading spinner component
 function LoadingSpinner() {
@@ -36,6 +37,8 @@ export default function Content() {
         return 'Environment Management';
       case 'apikeys':
         return 'API Keys Management';
+      case 'metrics':
+        return 'Metrics & Analytics';
       default:
         return 'Environment Management';
     }
@@ -52,6 +55,8 @@ export default function Content() {
         return <EnvironmentContent />;
       case 'apikeys':
         return <ApiKeysContent />;
+      case 'metrics':
+        return <MetricsContent />;
       default:
         return <EnvironmentContent />;
     }

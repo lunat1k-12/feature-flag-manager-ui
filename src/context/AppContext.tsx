@@ -1,12 +1,14 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import {
   Environment,
   FeatureFlag,
   ApiKey,
+  FeatureMetrics,
   fetchEnvironments,
   fetchFeatureFlags,
   fetchApiKeys,
   generateApiKey,
+  fetchMetrics,
   apiClient
 } from '../api';
 import {useAuth} from "react-oidc-context";
@@ -27,11 +29,17 @@ interface AppContextType {
   selectedEnvironment: string | null;
   featureFlags: FeatureFlag[] | null;
   apiKeys: ApiKey[] | null;
+  metrics: FeatureMetrics[] | null;
+
+  // Metrics state
+  metricsType: 'day' | 'week';
+  setMetricsType: (type: 'day' | 'week') => void;
 
   // Data fetching functions
   refreshEnvironments: (forceRefresh: boolean) => Promise<void>;
   refreshFeatureFlags: (envName: string) => Promise<void>;
   refreshApiKeys: (envName: string) => Promise<void>;
+  refreshMetrics: (envName: string, type: 'day' | 'week') => Promise<void>;
   generateNewApiKey: (envName: string) => Promise<void>;
   setSelectedEnvironment: (envName: string) => void;
 }
@@ -52,6 +60,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [selectedEnvironment, setSelectedEnvironment] = useState<string | null>(null);
   const [featureFlags, setFeatureFlags] = useState<FeatureFlag[] | null>(null);
   const [apiKeys, setApiKeys] = useState<ApiKey[] | null>(null);
+  const [metrics, setMetrics] = useState<FeatureMetrics[] | null>(null);
+
+  // Metrics state
+  const [metricsType, setMetricsType] = useState<'day' | 'week'>('week');
 
   const { user } = useAuth();
 
@@ -152,6 +164,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Fetch metrics for a specific environment and time period
+  const refreshMetrics = useCallback(async (envName: string, type: 'day' | 'week') => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetchMetrics(envName, type);
+
+      if (response.success) {
+        setMetrics(response.data);
+      } else {
+        setError(response.error || 'Failed to fetch metrics data');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   // Load environment data when component mounts
   useEffect(() => {
     if (user) {
@@ -173,6 +205,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [selectedEnvironment, user, activeTab]);
 
+  // Load metrics when selected environment changes and metrics tab is active
+  useEffect(() => {
+    if (selectedEnvironment && user && activeTab === 'metrics') {
+      refreshMetrics(selectedEnvironment, metricsType);
+    }
+  }, [selectedEnvironment, user, activeTab, metricsType, refreshMetrics]);
+
   return (
     <AppContext.Provider value={{ 
       // Navigation state
@@ -190,11 +229,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       selectedEnvironment,
       featureFlags,
       apiKeys,
+      metrics,
+
+      // Metrics state
+      metricsType,
+      setMetricsType,
 
       // Data fetching functions
       refreshEnvironments,
       refreshFeatureFlags,
       refreshApiKeys,
+      refreshMetrics,
       generateNewApiKey,
       setSelectedEnvironment
     }}>
