@@ -1,4 +1,5 @@
 import { MetricDataPoint } from '../../api';
+import { useState } from 'react';
 
 interface DataSeries {
   data: MetricDataPoint[];
@@ -19,6 +20,18 @@ export default function MultiLineChart({
   width = 800, 
   height = 300 
 }: MultiLineChartProps) {
+  const [tooltip, setTooltip] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    content: string;
+  }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    content: ''
+  });
+
   if (!series || series.length === 0 || series.every(s => !s.data || s.data.length === 0)) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500">
@@ -60,8 +73,32 @@ export default function MultiLineChart({
     yAxisLabels.push({ value: Math.round(value), y });
   }
 
+  const handleMouseEnter = (point: any, series: any, event: React.MouseEvent<SVGCircleElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const containerRect = event.currentTarget.closest('.bg-white')?.getBoundingClientRect();
+    
+    if (containerRect) {
+      const formattedDate = new Date(point.label).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+      
+      setTooltip({
+        visible: true,
+        x: rect.left - containerRect.left + rect.width / 2,
+        y: rect.top - containerRect.top,
+        content: `${series.label}: ${point.value} (${formattedDate})`
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setTooltip(prev => ({ ...prev, visible: false }));
+  };
+
   return (
-    <div className="bg-white p-6 rounded-lg border">
+    <div className="bg-white p-6 rounded-lg border relative">
       <div className="flex items-center justify-between mb-4">
         <h5 className="text-lg font-medium text-gray-900">{title}</h5>
         
@@ -178,16 +215,16 @@ export default function MultiLineChart({
                     strokeWidth="2"
                   />
                   
-                  {/* Tooltip on hover */}
+                  {/* Invisible hover area */}
                   <circle
                     cx={point.x}
                     cy={point.y}
-                    r="10"
+                    r="12"
                     fill="transparent"
-                    className="cursor-pointer"
-                  >
-                    <title>{`${series.label} - ${point.label}: ${point.value}`}</title>
-                  </circle>
+                    className="cursor-pointer hover:fill-gray-100 hover:fill-opacity-20"
+                    onMouseEnter={(e) => handleMouseEnter(point, series, e)}
+                    onMouseLeave={handleMouseLeave}
+                  />
                 </g>
               ))}
             </g>
@@ -214,6 +251,29 @@ export default function MultiLineChart({
           return null;
         })}
       </svg>
+
+      {/* Custom Tooltip */}
+      {tooltip.visible && (
+        <div
+          className="absolute z-50 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg pointer-events-none whitespace-nowrap"
+          style={{
+            left: tooltip.x,
+            top: tooltip.y - 50,
+            transform: 'translateX(-50%)'
+          }}
+        >
+          {tooltip.content}
+          {/* Arrow */}
+          <div
+            className="absolute w-2 h-2 bg-gray-900 transform rotate-45"
+            style={{
+              left: '50%',
+              bottom: '-4px',
+              marginLeft: '-4px'
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
